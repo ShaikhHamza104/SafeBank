@@ -164,6 +164,87 @@ class Bank:
             print("Invalid PIN format. Please enter a numeric PIN.")
         except Exception as e:
             print(f"Something went wrong: {e}")
+    def check_balance(self):
+        """Check user's account balance"""
+        try:
+            pin = int(input("Enter your PIN: ").strip())  # Ensure PIN is integer
+            profile = collection.find_one({'_id': pin})
+            if profile is None:
+                print(f"No account found with PIN: {pin}")
+            else:
+                # Assuming the balance is stored under the key 'amount'
+                balance = profile.get('amount', 0)
+                print(f"Account Balance: {balance}")
+        except ValueError:
+            print("Invalid PIN format. Please enter a numeric PIN.")
+        except Exception as e:
+            print(f"Something went wrong: {e}")
+
+    def find_details(self):
+        while True:
+            try:
+                choice = int(input('''
+    1. Find ID by NAME
+    2. Find NAME by ID
+    3. Exit
+        '''))
+                if choice==1:
+                    pin=int(input("Enter your pin: ".strip()))
+                    profile=collection.find_one({'_id':pin},{"_id":0,'name':1})
+                    if profile:
+                        print(profile)
+                    else:
+                        print(f"sorry this pin:{pin} is not in this bank")
+
+                elif choice==2:
+                    name=input("Enter your name: ".strip()).title()
+                    profile=collection.find_one({'name':name},{'_id':1})
+                    if profile is None:
+                        print(f"sorry this name:{name} is not in this bank")
+                    else:
+                        print(profile)
+                elif choice == 3:
+                    break
+            except ValueError:
+                print("Invalid input. Please enter numeric values.")
+            except Exception as e:
+                print(f"Something went wrong: {e}")
+            
+
+    def deposit(self):
+        """Deposit money into user's account"""
+        try:
+            pin = int(input("Enter your PIN: ").strip())
+            amount = int(input("Enter a deposit amount (its must be grater than or equal to 500): ").strip())
+            if amount <= 0:
+                print("Deposit amount must be positive.")
+                return 
+            if amount <= 500:
+                print("Deposit amount must be grater then 500")
+                return 
+            profile=collection.find_one({'_id':pin})
+            if profile is None:  
+                print(f"No account found with PIN: {pin}")
+                return
+            # Update the user's balance
+            new_balance = profile.get('amount', 0) + amount
+            collection.update_one({'_id': pin}, {'$set': {'amount': new_balance}})
+            print(f"Deposited {amount}. New balance: {new_balance}")
+        except ValueError:
+            print("Invalid input. Please enter numeric values.")
+        except Exception as e:
+            print(f"Something went wrong: {e}")
+        
+        def withdraw(self):
+            """Withdraw money into user's account"""
+            try:
+                pin=int(input(""))
+            except ValueError:
+                print("Invalid input. Please enter numeric values.")
+            except Exception as e:
+                print(f"Something went wrong: {e}")
+            
+
 
     def main(self):
         """Main menu to interact with the Bank."""
@@ -172,11 +253,14 @@ class Bank:
 1. Create a new account
 2. Create a pin
 3. View profile
-4. Exit 
+4. Check Balance
+5. deposit 
+6. Find details
+7. Exit 
 '''))
-            t=(1,2,3,4)
+            t=(1,2,3,4,5,6,7)
             if user not in t:
-                print("You can choose either 1,2,3 or 4")
+                print("You can choose either 1,2,3,4,5 or 6")
             else:
                 if user==1:
                     self.create_account()
@@ -185,6 +269,12 @@ class Bank:
                 elif user==3:
                     self.view_profile()
                 elif user==4:
+                    self.check_balance()
+                elif user==5:
+                    self.deposit()
+                if user==6:
+                    self.find_details()
+                elif user==7:
                     break
 if __name__ == "__main__":
     try:
