@@ -215,7 +215,7 @@ class Bank:
         """Deposit money into user's account"""
         try:
             pin = int(input("Enter your PIN: ").strip())
-            amount = int(input("Enter a deposit amount (its must be grater than or equal to 500): ").strip())
+            amount = int(input("Enter a deposit amount : ").strip())
             if amount <= 0:
                 print("Deposit amount must be positive.")
                 return 
@@ -235,27 +235,47 @@ class Bank:
         except Exception as e:
             print(f"Something went wrong: {e}")
         
-        def withdraw(self):
+    def withdraw(self):
             """Withdraw money into user's account"""
             try:
-                pin=int(input(""))
+                pin=int(input("Enter your pin"))
+                amount = int(input("Enter a deposit amount (its must be grater than or equal to 500): ").strip())
+                if amount <= 0:
+                    print("Withdrawal amount must be positive.")
+                    return
+                profile=collection.find_one({'_id':pin})
+                
+                if profile is None:  
+                    print(f"No account found with PIN: {pin}")
+                    return
+                current_balance = profile.get('amount', 0)
+                if amount > current_balance:
+                    print("Insufficient funds.")
+                    return
+                # Update the user's balance
+                new_balance = current_balance - amount
+                collection.update_one({'_id': pin}, {'$set': {'amount': new_balance}})
+                print(f"Withdraw {amount}. New balance: {new_balance}")
             except ValueError:
                 print("Invalid input. Please enter numeric values.")
             except Exception as e:
                 print(f"Something went wrong: {e}")
             
-
-
     def main(self):
         """Main menu to interact with the Bank."""
         while True:
             user=int(input('''
 1. Create a new account
+
 2. Create a pin
+
 3. View profile
+
 4. Check Balance
-5. deposit 
-6. Find details
+
+5. Deposit Money
+
+6. Withdraw Money
 7. Exit 
 '''))
             t=(1,2,3,4,5,6,7)
